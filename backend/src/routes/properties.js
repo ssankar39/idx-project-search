@@ -107,19 +107,19 @@ router.get('/', async (req, res) => {
             values.push(city);
         }
         if (zipcode) {
-            conditions.push('L_PostalCode = ?');
+            conditions.push('L_Zip = ?');
             values.push(zipcode);
         }
         if (minPrice) {
-            conditions.push('L_ListPrice >= ?');
+            conditions.push('L_SystemPrice >= ?');
             values.push(parseFloat(minPrice));
         }
         if (maxPrice) {
-            conditions.push('L_ListPrice <= ?');
+            conditions.push('L_SystemPrice <= ?');
             values.push(parseFloat(maxPrice));
         }
         if (beds) {
-            conditions.push('L_BedroomsTotal >= ?');
+            conditions.push('LM_Int2_3 >= ?');
             values.push(parseInt(beds));
         }
         if (baths) {

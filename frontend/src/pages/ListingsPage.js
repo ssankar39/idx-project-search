@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { fetchProperties } from '../api/client';
+import PropertyFilters from '../components/PropertyFilters';
 import './ListingsPage.css';
 
 function ListingsPage() {
@@ -7,17 +8,15 @@ function ListingsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [total, setTotal] = useState(0);
+  const [filters, setFilters] = useState({});
 
-  useEffect(() => {
-    loadProperties();
-  }, []);
-
-  async function loadProperties() {
+  const loadProperties = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const data = await fetchProperties({ limit: 20, offset: 0 });
+      const params = { ...filters, limit: 20, offset: 0 };
+      const data = await fetchProperties(params);
 
       setProperties(data.results);
       setTotal(data.total);
@@ -26,54 +25,86 @@ function ListingsPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [filters]);
 
-  if (loading) {
-    return <div className="loading">Loading properties...</div>;
-  }
+  useEffect(() => {
+    loadProperties();
+  }, [loadProperties]);
 
-  if (error) {
-    return <div className="error">{error}</div>;
-  }
+  const handleSearch = (newFilters) => {
+    setFilters(newFilters);
+  };
 
   return (
     <div className="listings-page">
       <h1>Property Listings</h1>
-      <p>Showing {properties.length} of {total} properties</p>
 
-      <div className="property-grid">
-        {properties.map(property => (
-          <PropertyCard key={property.ListingId} property={property} />
-        ))}
-      </div>
+      <PropertyFilters onSearch={handleSearch} />
+
+      {loading && (
+        <div className="loading">
+          <div className="spinner"></div>
+          <p>Loading properties...</p>
+        </div>
+      )}
+
+      {error && <div className="error">{error}</div>}
+
+      {!loading && !error && (
+        <>
+          <p>Showing {properties.length} of {total} properties</p>
+
+          {properties.length === 0 ? (
+            <div className="no-results">
+              No properties found matching your criteria. Try adjusting your filters.
+            </div>
+          ) : (
+            <div className="property-grid">
+              {properties.map(property => (
+                <PropertyCard key={property.L_ListingID} property={property} />
+              ))}
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }
 
 function PropertyCard({ property }) {
+  let photoUrl = null;
+  if (property.L_Photos) {
+    try {
+      const photos = JSON.parse(property.L_Photos);
+      photoUrl = photos[0] || null;
+    } catch {
+      photoUrl = null;
+    }
+  }
+
   return (
     <div className="property-card">
       <div className="property-image">
-        {property.Media ? (
-          <img src={property.Media} alt={property.UnparsedAddress} />
+        {photoUrl ? (
+          <img src={photoUrl} alt={property.L_Address} />
         ) : (
           <div className="no-image">No image available</div>
         )}
       </div>
 
       <div className="property-info">
-        <div className="price">${property.ListPrice?.toLocaleString()}</div>
-        <div className="address">{property.UnparsedAddress}</div>
-        <div className="city">{property.City}, {property.StateOrProvince}</div>
+        <div className="price">${property.L_SystemPrice?.toLocaleString()}</div>
+        <div className="address">{property.L_Address}</div>
+        <div className="city">{property.L_City}, {property.L_State}</div>
 
         <div className="property-details">
-          <span>{property.BedroomsTotal} beds</span>
+          <span>{property.LM_Int2_3} beds</span>
           <span>•</span>
-          <span>{property.BathroomsTotalInteger} baths</span>
-          {property.LivingArea && (
+          <span>{property.BathroomsHalf} baths</span>
+          {property.LM_Dec_3 && (
             <>
               <span>•</span>
-              <span>{property.LivingArea.toLocaleString()} sqft</span>
+              <span>{Number(property.LM_Dec_3).toLocaleString()} sqft</span>
             </>
           )}
         </div>
