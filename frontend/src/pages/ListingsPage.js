@@ -1,16 +1,21 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { fetchProperties } from '../api/client';
 import PropertyFilters from '../components/PropertyFilters';
 import Pagination from '../components/Pagination';
 import './ListingsPage.css';
 
 function ListingsPage() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const listingState = location.state?.listingsState;
+
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [total, setTotal] = useState(0);
-  const [filters, setFilters] = useState({});
-  const [currentPage, setCurrentPage] = useState(1);
+  const [filters, setFilters] = useState(listingState?.filters || {});
+  const [currentPage, setCurrentPage] = useState(listingState?.currentPage || 1);
   const [itemsPerPage] = useState(20);
 
   useEffect(() => {
@@ -46,6 +51,22 @@ function ListingsPage() {
     window.scrollTo(0, 0);
   };
 
+  const handlePropertyClick = (listingId, selectedProperty) => {
+    if (!listingId) {
+      return;
+    }
+
+    navigate(`/property/${listingId}`, {
+      state: {
+        selectedProperty,
+        listingsState: {
+          filters,
+          currentPage
+        }
+      }
+    });
+  };
+
   const totalPages = Math.ceil(total / itemsPerPage);
 
   return (
@@ -77,7 +98,11 @@ function ListingsPage() {
           ) : (
             <div className="property-grid">
               {properties.map(property => (
-                <PropertyCard key={property.L_ListingID} property={property} />
+                <PropertyCard
+                  key={property.L_ListingID || property.ListingId}
+                  property={property}
+                  onNavigate={handlePropertyClick}
+                />
               ))}
             </div>
           )}
@@ -95,7 +120,9 @@ function ListingsPage() {
   );
 }
 
-function PropertyCard({ property }) {
+function PropertyCard({ property, onNavigate }) {
+  const listingId = property.L_ListingID || property.ListingId;
+
   let photoUrl = null;
   if (property.L_Photos) {
     try {
@@ -106,8 +133,26 @@ function PropertyCard({ property }) {
     }
   }
 
+  const handleClick = () => {
+    onNavigate(listingId, property);
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      onNavigate(listingId, property);
+    }
+  };
+
   return (
-    <div className="property-card">
+    <div
+      className="property-card"
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      role="button"
+      tabIndex={0}
+      aria-label={`View details for ${property.L_Address}`}
+    >
       <div className="property-image">
         {photoUrl ? (
           <img src={photoUrl} alt={property.L_Address} />
