@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { fetchPropertyDetail, fetchOpenHouses } from '../api/client';
+import { useFavorites } from '../hooks/useFavorites';
 import './PropertyDetailPage.css';
 
 function firstDefined(...values) {
@@ -74,6 +75,7 @@ function PropertyDetailPage() {
   const [openHouses, setOpenHouses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { isFavorite, toggleFavorite } = useFavorites();
 
   useEffect(() => {
     loadPropertyData();
@@ -102,6 +104,11 @@ function PropertyDetailPage() {
   const listingState = location.state?.listingsState;
   const selectedProperty = location.state?.selectedProperty;
   const handleBack = () => {
+    if (location.state?.from === 'favorites') {
+      navigate('/favorites');
+      return;
+    }
+
     if (listingState) {
       navigate('/', {
         state: {
@@ -147,16 +154,29 @@ function PropertyDetailPage() {
   const lotSizeAcres = property.LotSizeAcres;
   const parkingTotal = property.OpenParkingSpaces;
   const description = property.L_Remarks;
-  const listingId = property.L_ListingID;
+  const listingId = firstDefined(property.L_ListingID, selectedProperty?.L_ListingID, selectedProperty?.ListingId);
   const standardStatus = firstDefined(property.StandardStatus, property.L_Status);
   const listingContractDate = property.ListingContractDate;
   const imageUrl = parsePhotoUrl(property);
+  const favorite = isFavorite(listingId);
+
+  const handleFavoriteClick = () => {
+    toggleFavorite(listingId);
+  };
 
   return (
     <div className="property-detail-page">
       <div className="detail-page-actions">
         <button onClick={handleBack} className="btn-back" type="button">
           Back to Listings
+        </button>
+        <button
+          type="button"
+          className={`favorite-detail-btn ${favorite ? 'active' : ''}`}
+          onClick={handleFavoriteClick}
+          aria-label={favorite ? 'Remove from favorites' : 'Add to favorites'}
+        >
+          {favorite ? '❤ Favorited' : '♡ Add to Favorites'}
         </button>
       </div>
 

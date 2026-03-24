@@ -24,6 +24,7 @@ function CurrentLocation() {
 describe('ListingsPage navigation', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    localStorage.clear();
   });
 
   test('clicking a property card navigates to detail URL with listing id', async () => {
@@ -37,7 +38,7 @@ describe('ListingsPage navigation', () => {
           L_State: 'OR',
           L_SystemPrice: 500000,
           LM_Int2_3: 3,
-          BathroomsHalf: 2,
+          LM_Half: 2,
           LM_Dec_3: 1800,
           L_Photos: '[]'
         }
@@ -95,5 +96,43 @@ describe('ListingsPage navigation', () => {
         })
       );
     });
+  });
+
+  test('favorite button toggles without navigating away', async () => {
+    fetchProperties.mockResolvedValueOnce({
+      total: 1,
+      results: [
+        {
+          L_ListingID: 'ABC123',
+          L_Address: '100 Main St',
+          L_City: 'Portland',
+          L_State: 'OR',
+          L_SystemPrice: 500000,
+          LM_Int2_3: 3,
+          BathroomsHalf: 2,
+          LM_Dec_3: 1800,
+          L_Photos: '[]'
+        }
+      ]
+    });
+
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <CurrentLocation />
+        <Routes>
+          <Route path="/" element={<ListingsPage />} />
+          <Route path="/property/:id" element={<div>Detail Route</div>} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    await screen.findByText('100 Main St');
+
+    const favoriteButton = screen.getByRole('button', { name: /add to favorites/i });
+    await userEvent.click(favoriteButton);
+
+    expect(screen.getByTestId('current-path')).toHaveTextContent('/');
+    expect(screen.getByRole('button', { name: /remove from favorites/i })).toBeInTheDocument();
+    expect(JSON.parse(localStorage.getItem('favoriteProperties'))).toEqual(['ABC123']);
   });
 });

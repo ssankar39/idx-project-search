@@ -75,21 +75,43 @@ router.get('/:id', async (req, res) => {
 
 router.get('/', async (req, res) => {
     try {
-        const limit = parseInt(req.query.limit) || 20;
-        const offset = parseInt(req.query.offset) || 0;
+        const hasLimit = req.query.limit !== undefined;
+        const hasOffset = req.query.offset !== undefined;
+        const limit = hasLimit ? parseInt(req.query.limit, 10) : 20;
+        const offset = hasOffset ? parseInt(req.query.offset, 10) : 0;
         const { city, zipcode, minPrice, maxPrice, beds, baths } = req.query;
 
+        const normalizedCity = city === undefined ? undefined : String(city).trim();
+        const normalizedZipcode = zipcode === undefined ? undefined : String(zipcode).trim();
+
+        const hasMinPrice = minPrice !== undefined && minPrice !== '';
+        const hasMaxPrice = maxPrice !== undefined && maxPrice !== '';
+        const hasBeds = beds !== undefined && beds !== '';
+        const hasBaths = baths !== undefined && baths !== '';
+
+        const minPriceValue = hasMinPrice ? Number(minPrice) : null;
+        const maxPriceValue = hasMaxPrice ? Number(maxPrice) : null;
+        const bedsValue = hasBeds ? Number(beds) : null;
+        const bathsValue = hasBaths ? Number(baths) : null;
+
+        if (hasLimit && Number.isNaN(limit)) {
+            return res.status(400).json({ error: 'limit must be a number' });
+        }
+        if (hasOffset && Number.isNaN(offset)) {
+            return res.status(400).json({ error: 'offset must be a number' });
+        }
+
         // Validate numeric inputs
-        if (minPrice && isNaN(minPrice)) {
+        if (hasMinPrice && !Number.isFinite(minPriceValue)) {
             return res.status(400).json({ error: 'minPrice must be a number' });
         }
-        if (maxPrice && isNaN(maxPrice)) {
+        if (hasMaxPrice && !Number.isFinite(maxPriceValue)) {
             return res.status(400).json({ error: 'maxPrice must be a number' });
         }
-        if (beds && isNaN(beds)) {
+        if (hasBeds && (!Number.isInteger(bedsValue) || bedsValue < 0 || bedsValue > 50)) {
             return res.status(400).json({ error: 'beds must be a number' });
         }
-        if (baths && isNaN(baths)) {
+        if (hasBaths && (!Number.isInteger(bathsValue) || bathsValue < 0 || bathsValue > 50)) {
             return res.status(400).json({ error: 'baths must be a number' });
         }
         if (limit < 1 || limit > 100) {
@@ -98,33 +120,56 @@ router.get('/', async (req, res) => {
         if (offset < 0) {
             return res.status(400).json({ error: 'offset cannot be negative' });
         }
+        if (hasMinPrice && minPriceValue < 0) {
+            return res.status(400).json({ error: 'minPrice must be 0 or greater' });
+        }
+        if (hasMaxPrice && maxPriceValue < 0) {
+            return res.status(400).json({ error: 'maxPrice must be 0 or greater' });
+        }
+        if (hasMinPrice && hasMaxPrice && minPriceValue > maxPriceValue) {
+            return res.status(400).json({ error: 'minPrice cannot be greater than maxPrice' });
+        }
+        if (normalizedCity !== undefined) {
+            if (!normalizedCity) {
+                return res.status(400).json({ error: 'city cannot be empty' });
+            }
+            if (normalizedCity.length > 100) {
+                return res.status(400).json({ error: 'city is too long' });
+            }
+        }
+        if (normalizedZipcode !== undefined) {
+            const zipRegex = /^\d{5}(?:-\d{4})?$/;
+            if (!zipRegex.test(normalizedZipcode)) {
+                return res.status(400).json({ error: 'zipcode must be in 12345 or 12345-6789 format' });
+            }
+        }
 
         const conditions = [];
         const values = [];
 
-        if (city) {
+        if (normalizedCity) {
             conditions.push('LOWER(TRIM(L_City)) = LOWER(TRIM(?))');
-            values.push(city);
+            values.push(normalizedCity);
         }
-        if (zipcode) {
+        if (normalizedZipcode) {
             conditions.push('L_Zip = ?');
-            values.push(zipcode);
+            values.push(normalizedZipcode);
         }
-        if (minPrice) {
+        if (hasMinPrice) {
             conditions.push('L_SystemPrice >= ?');
-            values.push(parseFloat(minPrice));
+            values.push(minPriceValue);
         }
-        if (maxPrice) {
+        if (hasMaxPrice) {
             conditions.push('L_SystemPrice <= ?');
-            values.push(parseFloat(maxPrice));
+            values.push(maxPriceValue);
         }
-        if (beds) {
+        if (hasBeds) {
             conditions.push('LM_Int2_3 >= ?');
-            values.push(parseInt(beds));
+            values.push(bedsValue);
         }
-        if (baths) {
+        if (hasBaths) {
             conditions.push('BathroomsHalf >= ?');
-            values.push(parseInt(baths));
+            values.push(bathsValue);
         }
 
         const whereClause = conditions.length > 0

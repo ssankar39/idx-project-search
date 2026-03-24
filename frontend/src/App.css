@@ -2,6 +2,32 @@
   text-align: center;
 }
 
+.app-tabs {
+  max-width: 1200px;
+  margin: 20px auto 0;
+  padding: 0 20px;
+  display: flex;
+  gap: 10px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.app-tab {
+  text-decoration: none;
+  color: #555;
+  padding: 10px 14px;
+  border-bottom: 3px solid transparent;
+  font-weight: 600;
+}
+
+.app-tab:hover {
+  color: #1976d2;
+}
+
+.app-tab.active {
+  color: #1976d2;
+  border-bottom-color: #1976d2;
+}
+
 .App-logo {
   height: 40vmin;
   pointer-events: none;

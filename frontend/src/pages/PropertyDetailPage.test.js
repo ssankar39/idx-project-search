@@ -22,6 +22,7 @@ function LocationStateViewer() {
 describe('PropertyDetailPage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    localStorage.clear();
   });
 
   test('shows loading then renders detail fields and open house data', async () => {
@@ -147,5 +148,33 @@ describe('PropertyDetailPage', () => {
       expect(screen.getByTestId('current-state')).toHaveTextContent('currentPage');
       expect(screen.getByTestId('current-state')).toHaveTextContent('2');
     });
+  });
+
+  test('favorite button loads from storage and toggles', async () => {
+    localStorage.setItem('favoriteProperties', JSON.stringify(['ABC123']));
+
+    fetchPropertyDetail.mockResolvedValueOnce({
+      L_ListingID: 'ABC123',
+      L_SystemPrice: 500000,
+      L_Address: '100 Main St'
+    });
+    fetchOpenHouses.mockResolvedValueOnce({ openhouses: [] });
+
+    render(
+      <MemoryRouter initialEntries={['/property/ABC123']}>
+        <Routes>
+          <Route path="/property/:id" element={<PropertyDetailPage />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    await screen.findByText('$500,000');
+
+    const activeButton = screen.getByRole('button', { name: /remove from favorites/i });
+    expect(activeButton).toHaveTextContent(/favorited/i);
+
+    await userEvent.click(activeButton);
+    expect(screen.getByRole('button', { name: /add to favorites/i })).toBeInTheDocument();
+    expect(JSON.parse(localStorage.getItem('favoriteProperties'))).toEqual([]);
   });
 });

@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { fetchProperties } from '../api/client';
 import PropertyFilters from '../components/PropertyFilters';
 import Pagination from '../components/Pagination';
+import { useFavorites } from '../hooks/useFavorites';
 import './ListingsPage.css';
 
 function ListingsPage() {
@@ -17,6 +18,7 @@ function ListingsPage() {
   const [filters, setFilters] = useState(listingState?.filters || {});
   const [currentPage, setCurrentPage] = useState(listingState?.currentPage || 1);
   const [itemsPerPage] = useState(20);
+  const { isFavorite, toggleFavorite } = useFavorites();
 
   useEffect(() => {
     loadProperties();
@@ -102,6 +104,8 @@ function ListingsPage() {
                   key={property.L_ListingID || property.ListingId}
                   property={property}
                   onNavigate={handlePropertyClick}
+                  favorite={isFavorite(property.L_ListingID || property.ListingId)}
+                  onToggleFavorite={toggleFavorite}
                 />
               ))}
             </div>
@@ -120,7 +124,7 @@ function ListingsPage() {
   );
 }
 
-function PropertyCard({ property, onNavigate }) {
+function PropertyCard({ property, onNavigate, favorite, onToggleFavorite }) {
   const listingId = property.L_ListingID || property.ListingId;
 
   let photoUrl = null;
@@ -144,6 +148,17 @@ function PropertyCard({ property, onNavigate }) {
     }
   };
 
+  const handleFavoriteClick = (event) => {
+    event.stopPropagation();
+    onToggleFavorite(listingId);
+  };
+
+  const handleFavoriteKeyDown = (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.stopPropagation();
+    }
+  };
+
   return (
     <div
       className="property-card"
@@ -153,6 +168,16 @@ function PropertyCard({ property, onNavigate }) {
       tabIndex={0}
       aria-label={`View details for ${property.L_Address}`}
     >
+      <button
+        type="button"
+        className={`favorite-btn ${favorite ? 'active' : ''}`}
+        onClick={handleFavoriteClick}
+        onKeyDown={handleFavoriteKeyDown}
+        aria-label={favorite ? 'Remove from favorites' : 'Add to favorites'}
+      >
+        {favorite ? '❤' : '♡'}
+      </button>
+
       <div className="property-image">
         {photoUrl ? (
           <img src={photoUrl} alt={property.L_Address} />
