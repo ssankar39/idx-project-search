@@ -1,8 +1,10 @@
+import { buildQueryString, handleApiError } from '../utils/api-helpers';
+
 const API_BASE = ''; // Empty because of proxy
 
 export async function fetchProperties(params = {}) {
   try {
-    const query = new URLSearchParams(params).toString();
+    const query = buildQueryString(params);
     const url = `${API_BASE}/api/properties${query ? '?' + query : ''}`;
 
     const response = await fetch(url);
@@ -13,8 +15,7 @@ export async function fetchProperties(params = {}) {
 
     return await response.json();
   } catch (error) {
-    console.error('API Error:', error);
-    throw error;
+    throw new Error(handleApiError(error, 'Failed to fetch properties'));
   }
 }
 
@@ -31,8 +32,7 @@ export async function fetchPropertyDetail(listingId) {
 
     return await response.json();
   } catch (error) {
-    console.error('API Error:', error);
-    throw error;
+    throw new Error(handleApiError(error, 'Failed to fetch property details'));
   }
 }
 
@@ -46,7 +46,6 @@ export async function fetchOpenHouses(listingId) {
 
     return await response.json();
   } catch (error) {
-    console.error('API Error:', error);
-    throw error;
+    throw new Error(handleApiError(error, 'Failed to fetch open houses'));
   }
 }
