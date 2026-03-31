@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { fetchProperties } from '../api/client';
 import PropertyFilters from '../components/PropertyFilters';
 import Pagination from '../components/Pagination';
+import PropertyCard from '../components/PropertyCard';
 import { useFavorites } from '../hooks/useFavorites';
 import './ListingsPage.css';
 
@@ -120,89 +121,6 @@ function ListingsPage() {
           )}
         </>
       )}
-    </div>
-  );
-}
-
-function PropertyCard({ property, onNavigate, favorite, onToggleFavorite }) {
-  const listingId = property.L_ListingID || property.ListingId;
-
-  let photoUrl = null;
-  if (property.L_Photos) {
-    try {
-      const photos = JSON.parse(property.L_Photos);
-      photoUrl = photos[0] || null;
-    } catch {
-      photoUrl = null;
-    }
-  }
-
-  const handleClick = () => {
-    onNavigate(listingId, property);
-  };
-
-  const handleKeyDown = (event) => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      onNavigate(listingId, property);
-    }
-  };
-
-  const handleFavoriteClick = (event) => {
-    event.stopPropagation();
-    onToggleFavorite(listingId);
-  };
-
-  const handleFavoriteKeyDown = (event) => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.stopPropagation();
-    }
-  };
-
-  return (
-    <div
-      className="property-card"
-      onClick={handleClick}
-      onKeyDown={handleKeyDown}
-      role="button"
-      tabIndex={0}
-      aria-label={`View details for ${property.L_Address}`}
-    >
-      <button
-        type="button"
-        className={`favorite-btn ${favorite ? 'active' : ''}`}
-        onClick={handleFavoriteClick}
-        onKeyDown={handleFavoriteKeyDown}
-        aria-label={favorite ? 'Remove from favorites' : 'Add to favorites'}
-      >
-        {favorite ? '❤' : '♡'}
-      </button>
-
-      <div className="property-image">
-        {photoUrl ? (
-          <img src={photoUrl} alt={property.L_Address} />
-        ) : (
-          <div className="no-image">No image available</div>
-        )}
-      </div>
-
-      <div className="property-info">
-        <div className="price">${property.L_SystemPrice?.toLocaleString()}</div>
-        <div className="address">{property.L_Address}</div>
-        <div className="city">{property.L_City}, {property.L_State}</div>
-
-        <div className="property-details">
-          <span>{property.LM_Int2_3} beds</span>
-          <span>•</span>
-          <span>{property.BathroomsHalf} baths</span>
-          {property.LM_Dec_3 && (
-            <>
-              <span>•</span>
-              <span>{Number(property.LM_Dec_3).toLocaleString()} sqft</span>
-            </>
-          )}
-        </div>
-      </div>
     </div>
   );
 }

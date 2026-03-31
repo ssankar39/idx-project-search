@@ -145,9 +145,9 @@ describe('PropertyDetailPage', () => {
 
     await waitFor(() => {
       expect(screen.getByTestId('current-state')).toHaveTextContent('Portland');
-      expect(screen.getByTestId('current-state')).toHaveTextContent('currentPage');
-      expect(screen.getByTestId('current-state')).toHaveTextContent('2');
     });
+    expect(screen.getByTestId('current-state')).toHaveTextContent('currentPage');
+    expect(screen.getByTestId('current-state')).toHaveTextContent('2');
   });
 
   test('favorite button loads from storage and toggles', async () => {
