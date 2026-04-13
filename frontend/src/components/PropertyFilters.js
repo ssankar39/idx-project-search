@@ -46,8 +46,9 @@ function PropertyFilters({ onSearch }) {
     <form className="property-filters" onSubmit={handleSubmit}>
       <div className="filter-row">
         <div className="filter-group">
-          <label>City</label>
+          <label htmlFor="filter-city">City</label>
           <input
+            id="filter-city"
             type="text"
             name="city"
             value={filters.city}
@@ -57,8 +58,9 @@ function PropertyFilters({ onSearch }) {
         </div>
 
         <div className="filter-group">
-          <label>ZIP Code</label>
+          <label htmlFor="filter-zipcode">ZIP Code</label>
           <input
+            id="filter-zipcode"
             type="text"
             name="zipcode"
             value={filters.zipcode}
@@ -68,8 +70,9 @@ function PropertyFilters({ onSearch }) {
         </div>
 
         <div className="filter-group">
-          <label>Min Price</label>
+          <label htmlFor="filter-minPrice">Min Price</label>
           <input
+            id="filter-minPrice"
             type="number"
             name="minPrice"
             value={filters.minPrice}
@@ -79,8 +82,9 @@ function PropertyFilters({ onSearch }) {
         </div>
 
         <div className="filter-group">
-          <label>Max Price</label>
+          <label htmlFor="filter-maxPrice">Max Price</label>
           <input
+            id="filter-maxPrice"
             type="number"
             name="maxPrice"
             value={filters.maxPrice}
@@ -90,8 +94,8 @@ function PropertyFilters({ onSearch }) {
         </div>
 
         <div className="filter-group">
-          <label>Beds</label>
-          <select name="beds" value={filters.beds} onChange={handleChange}>
+          <label htmlFor="filter-beds">Beds</label>
+          <select id="filter-beds" name="beds" value={filters.beds} onChange={handleChange}>
             <option value="">Any</option>
             <option value="1">1+</option>
             <option value="2">2+</option>
@@ -102,8 +106,8 @@ function PropertyFilters({ onSearch }) {
         </div>
 
         <div className="filter-group">
-          <label>Baths</label>
-          <select name="baths" value={filters.baths} onChange={handleChange}>
+          <label htmlFor="filter-baths">Baths</label>
+          <select id="filter-baths" name="baths" value={filters.baths} onChange={handleChange}>
             <option value="">Any</option>
             <option value="1">1+</option>
             <option value="2">2+</option>
