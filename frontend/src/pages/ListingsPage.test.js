@@ -37,9 +37,9 @@ describe('ListingsPage navigation', () => {
           L_City: 'Portland',
           L_State: 'OR',
           L_SystemPrice: 500000,
-          LM_Int2_3: 3,
+          LM_Int2_3: 1800,
           LM_Half: 2,
-          LM_Dec_3: 1800,
+          LM_Dec_3: 3,
           L_Photos: '[]'
         }
       ]
@@ -108,9 +108,9 @@ describe('ListingsPage navigation', () => {
           L_City: 'Portland',
           L_State: 'OR',
           L_SystemPrice: 500000,
-          LM_Int2_3: 3,
+          LM_Int2_3: 1800,
           BathroomsHalf: 2,
-          LM_Dec_3: 1800,
+          LM_Dec_3: 3,
           L_Photos: '[]'
         }
       ]

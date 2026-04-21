@@ -12,6 +12,30 @@ function validateListingId(id) {
     return { valid: true };
 }
 
+function normalizeBedrooms(value) {
+    if (value === null || value === undefined || value === '') {
+        return value;
+    }
+
+    const parsed = Number(value);
+    if (!Number.isFinite(parsed)) {
+        return value;
+    }
+
+    return Math.trunc(parsed);
+}
+
+function normalizePropertyRecord(record) {
+    if (!record || typeof record !== 'object') {
+        return record;
+    }
+
+    return {
+        ...record,
+        LM_Dec_3: normalizeBedrooms(record.LM_Dec_3)
+    };
+}
+
 router.get('/:id/openhouses', async (req, res) => {
     try {
         const { id } = req.params;
@@ -66,7 +90,7 @@ router.get('/:id', async (req, res) => {
             });
         }
 
-        res.json(results[0]);
+        res.json(normalizePropertyRecord(results[0]));
     } catch (error) {
         console.error('Database error:', error);
         res.status(500).json({ error: 'Failed to fetch property details' });
@@ -164,7 +188,7 @@ router.get('/', async (req, res) => {
             values.push(maxPriceValue);
         }
         if (hasBeds) {
-            conditions.push('LM_Int2_3 >= ?');
+            conditions.push('LM_Dec_3 >= ?');
             values.push(bedsValue);
         }
         if (hasBaths) {
@@ -183,7 +207,12 @@ router.get('/', async (req, res) => {
         const dataQuery = `SELECT * FROM rets_property ${whereClause} LIMIT ? OFFSET ?`;
         const [results] = await pool.query(dataQuery, [...values, limit, offset]);
 
-        res.json({ total, limit, offset, results });
+        res.json({
+            total,
+            limit,
+            offset,
+            results: results.map(normalizePropertyRecord)
+        });
     } catch (error) {
         console.error('Database error:', error);
         res.status(500).json({ error: 'Failed to fetch properties' });

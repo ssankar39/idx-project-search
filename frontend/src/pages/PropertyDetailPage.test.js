@@ -33,9 +33,9 @@ describe('PropertyDetailPage', () => {
       L_City: 'Portland',
       L_State: 'OR',
       L_Zip: '97201',
-      LM_Int2_3: 3,
+      LM_Int2_3: 1800,
       BathroomsHalf: 2,
-      LM_Dec_3: 1800,
+      LM_Dec_3: 3,
       YearBuilt: 2001,
       L_Remarks: 'Beautiful home with updates.',
       L_Photos: '["https://example.com/home.jpg"]'

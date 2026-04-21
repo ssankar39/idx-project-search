@@ -145,9 +145,9 @@ function PropertyDetailPage() {
   const city = firstDefined(property.L_City, selectedProperty?.L_City);
   const state = firstDefined(property.L_State, selectedProperty?.L_State);
   const postalCode = firstDefined(property.L_Zip, selectedProperty?.L_Zip);
-  const bedrooms = property.LM_Int2_3;
+  const bedrooms = property.LM_Dec_3;
   const bathrooms = property.BathroomsHalf;
-  const livingArea = property.LM_Dec_3;
+  const livingArea = property.LM_Int2_3;
   const yearBuilt = property.YearBuilt;
   const propertyType = property.L_Type_;
   const propertySubType = firstDefined(property.PropertySubTypeAdditional, property.StructureType);

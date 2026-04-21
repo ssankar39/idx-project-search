@@ -167,13 +167,13 @@ function FavoritesPage() {
                     <div className="city">{property.L_City}, {property.L_State}</div>
 
                     <div className="property-details">
-                      <span>{property.LM_Int2_3} beds</span>
+                      <span>{property.LM_Dec_3} beds</span>
                       <span>•</span>
                       <span>{property.BathroomsHalf} baths</span>
-                      {property.LM_Dec_3 && (
+                      {property.LM_Int2_3 && (
                         <>
                           <span>•</span>
-                          <span>{Number(property.LM_Dec_3).toLocaleString()} sqft</span>
+                          <span>{Number(property.LM_Int2_3).toLocaleString()} sqft</span>
                         </>
                       )}
                     </div>

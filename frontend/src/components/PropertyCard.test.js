@@ -7,9 +7,9 @@ const baseProperty = {
   L_City: 'Portland',
   L_State: 'OR',
   L_SystemPrice: 500000,
-  LM_Int2_3: 3,
+  LM_Int2_3: 1800,
   BathroomsHalf: 2,
-  LM_Dec_3: 1800,
+  LM_Dec_3: 3,
   L_Photos: JSON.stringify(['https://example.com/photo.jpg'])
 };
 

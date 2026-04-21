@@ -75,13 +75,13 @@ function PropertyCard({ property, onNavigate, favorite, onToggleFavorite }) {
         <div className="city">{property.L_City}, {property.L_State}</div>
 
         <div className="property-details">
-          <span>{property.LM_Int2_3} beds</span>
+          <span>{property.LM_Dec_3} beds</span>
           <span>•</span>
           <span>{property.BathroomsHalf} baths</span>
-          {property.LM_Dec_3 && (
+          {property.LM_Int2_3 && (
             <>
               <span>•</span>
-              <span>{formatNumber(property.LM_Dec_3)} sqft</span>
+              <span>{formatNumber(property.LM_Int2_3)} sqft</span>
             </>
           )}
         </div>
